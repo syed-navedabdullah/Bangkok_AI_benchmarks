@@ -132,6 +132,8 @@ const TRANSLATIONS = {
   },
 } as const;
 
+type Translation = { [K in keyof (typeof TRANSLATIONS)['en']]: string };
+
 type ExperienceRow = {
   years: number;
   low: number;
@@ -155,7 +157,7 @@ const EXPERIENCE_DATA: ExperienceRow[] = [
 ];
 
 type RangeItem = {
-  key: keyof (typeof TRANSLATIONS)['en'];
+  key: keyof Translation;
   low?: number;
   high?: number;
   avg?: number;
@@ -278,7 +280,7 @@ function RangeRow({
   );
 }
 
-function ChartLegend({ t }: { t: (typeof TRANSLATIONS)['en'] }) {
+function ChartLegend({ t }: { t: Translation }) {
   return (
     <div className="flex flex-wrap items-center gap-4 text-[11px] font-bold text-black/70">
       <div className="flex items-center gap-1.5">
