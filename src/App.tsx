@@ -19,7 +19,7 @@ const TRANSLATIONS = {
     estimatedNote: 'Interpolated between adjacent data points, not a direct survey figure.',
     currentOfferLabel: 'Current Offer',
     candidatePositionLabel: 'Candidate Position',
-    diffFromAskLabel: 'Difference from Ask (฿55,000)',
+    diffFromAskLabel: 'Market Median Premium over Ask (฿52,000)',
 
     tableColYears: 'Years',
     tableColLow: 'Low',
@@ -49,7 +49,7 @@ const TRANSLATIONS = {
     sourcesSub: 'All figures compiled from the following third-party salary surveys and databases',
 
     legendCurrentOffer: 'Current Offer (฿40,000)',
-    legendCandidatePosition: 'Candidate Position (฿55,000)',
+    legendCandidatePosition: 'Candidate Position (฿52,000)',
     unitNote: 'All figures in THB per month',
     avgTag: 'avg',
 
@@ -82,7 +82,7 @@ const TRANSLATIONS = {
     estimatedNote: 'ประมาณค่าจากการประมาณระหว่างจุดข้อมูลที่มีอยู่ ไม่ใช่ตัวเลขจากแบบสำรวจโดยตรง',
     currentOfferLabel: 'ข้อเสนอปัจจุบัน',
     candidatePositionLabel: 'ตำแหน่งของผู้สมัคร',
-    diffFromAskLabel: 'ส่วนต่างจากที่เสนอ (฿55,000)',
+    diffFromAskLabel: 'ค่ามัธยฐานตลาดสูงกว่าราคาที่เสนอ (฿52,000)',
 
     tableColYears: 'ปี',
     tableColLow: 'ต่ำสุด',
@@ -112,7 +112,7 @@ const TRANSLATIONS = {
     sourcesSub: 'ตัวเลขทั้งหมดรวบรวมจากแบบสำรวจและฐานข้อมูลเงินเดือนของบุคคลที่สามต่อไปนี้',
 
     legendCurrentOffer: 'ข้อเสนอปัจจุบัน (฿40,000)',
-    legendCandidatePosition: 'ตำแหน่งของผู้สมัคร (฿55,000)',
+    legendCandidatePosition: 'ตำแหน่งของผู้สมัคร (฿52,000)',
     unitNote: 'ตัวเลขทั้งหมดเป็นหน่วยบาทต่อเดือน',
     avgTag: 'เฉลี่ย',
 
@@ -194,7 +194,7 @@ const SOURCES = [
 ];
 
 const CURRENT_OFFER = 40000;
-const CANDIDATE_POSITION = 55000;
+const CANDIDATE_POSITION = 52000;
 
 const fmt = (v: number) => `฿${v.toLocaleString('en-US')}`;
 
