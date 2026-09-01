@@ -20,6 +20,12 @@ const TRANSLATIONS = {
     currentOfferLabel: 'Current Offer',
     candidatePositionLabel: 'Candidate Position',
     diffFromAskLabel: 'Market Median Premium over Ask (฿52,000)',
+    filterCorporate: 'Corporate',
+    filterEducation: 'Education',
+    filterEducationMBA: 'Education + MBA',
+    educationNote: 'Education sector data reflects overall range, not experience-adjusted.',
+    educationSource: 'ERI 2026, Thai University Compensation Benchmarks',
+    educationMbaSource: "ERI 2026 base + 30% master's premium (WorldSalaries 2026)",
 
     tableColYears: 'Years',
     tableColLow: 'Low',
@@ -97,6 +103,12 @@ const TRANSLATIONS = {
     currentOfferLabel: 'ข้อเสนอปัจจุบัน',
     candidatePositionLabel: 'ตำแหน่งของผู้สมัคร',
     diffFromAskLabel: 'ค่ามัธยฐานตลาดสูงกว่าราคาที่เสนอ (฿52,000)',
+    filterCorporate: 'ภาคเอกชน',
+    filterEducation: 'ภาคการศึกษา',
+    filterEducationMBA: 'ภาคการศึกษา + MBA',
+    educationNote: 'ข้อมูลภาคการศึกษาสะท้อนช่วงเงินเดือนโดยรวม ไม่ได้ปรับตามประสบการณ์',
+    educationSource: 'ERI 2026, เกณฑ์เปรียบเทียบค่าตอบแทนมหาวิทยาลัยไทย',
+    educationMbaSource: 'ฐาน ERI 2026 บวกส่วนเพิ่มปริญญาโท 30% (WorldSalaries 2026)',
 
     tableColYears: 'ปี',
     tableColLow: 'ต่ำสุด',
@@ -185,6 +197,11 @@ const EXPERIENCE_DATA: ExperienceRow[] = [
   { years: 9, low: 78000, median: 96000, high: 120000, source: 'JobsDB Thailand 2026', interpolated: false },
   { years: 10, low: 85000, median: 105000, high: 130000, source: 'Michael Page Thailand 2026', interpolated: false },
 ];
+
+type ExplorerMode = 'corporate' | 'education' | 'educationMBA';
+
+const EDUCATION_RANGE = { low: 42000, median: 50000, high: 72000 };
+const EDUCATION_MBA_RANGE = { low: 54600, median: 65000, high: 93600 };
 
 type RangeItem = {
   key: keyof Translation;
@@ -508,7 +525,14 @@ export default function App() {
     () => EXPERIENCE_DATA.find((r) => r.years === selectedYears) ?? EXPERIENCE_DATA[2],
     [selectedYears]
   );
-  const askDiff = selectedRow.median - CANDIDATE_POSITION;
+
+  const [explorerMode, setExplorerMode] = useState<ExplorerMode>('corporate');
+  const displayedValues = useMemo(() => {
+    if (explorerMode === 'education') return EDUCATION_RANGE;
+    if (explorerMode === 'educationMBA') return EDUCATION_MBA_RANGE;
+    return { low: selectedRow.low, median: selectedRow.median, high: selectedRow.high };
+  }, [explorerMode, selectedRow]);
+  const askDiff = displayedValues.median - CANDIDATE_POSITION;
 
   const EXPLORER_DOMAIN = 140000;
   const explorerPct = (v: number) => Math.max(0, Math.min(100, (v / EXPLORER_DOMAIN) * 100));
@@ -670,7 +694,27 @@ export default function App() {
                   boxShadow: `${-tilt.ry * 1.5}px ${tilt.rx * 1.5}px 40px rgba(0,0,0,0.25)`,
                 }}
               >
-            <div className="space-y-2">
+            <div className="flex flex-wrap gap-2">
+              {(['corporate', 'education', 'educationMBA'] as ExplorerMode[]).map((mode) => (
+                <button
+                  key={mode}
+                  onClick={() => setExplorerMode(mode)}
+                  className={`px-4 py-1.5 rounded-full text-xs font-bold border-2 transition-colors duration-300 ${
+                    explorerMode === mode
+                      ? 'bg-[#01aeee] border-[#01aeee] text-white'
+                      : 'bg-white border-[#01aeee] text-[#01aeee]'
+                  }`}
+                >
+                  {mode === 'corporate'
+                    ? t.filterCorporate
+                    : mode === 'education'
+                    ? t.filterEducation
+                    : t.filterEducationMBA}
+                </button>
+              ))}
+            </div>
+
+            <div className={`space-y-2 transition-opacity duration-300 ${explorerMode !== 'corporate' ? 'opacity-40' : ''}`}>
               <div className="flex items-center justify-between text-xs font-bold text-black">
                 <span>{t.yearsLabel}</span>
                 <span className="text-[#01aeee] text-base font-black">{selectedYears}</span>
@@ -681,13 +725,19 @@ export default function App() {
                 max={10}
                 step={1}
                 value={selectedYears}
+                disabled={explorerMode !== 'corporate'}
                 onChange={(e) => setSelectedYears(Number(e.target.value))}
-                className="w-full accent-[#01aeee] cursor-pointer"
+                className={`w-full accent-[#01aeee] ${
+                  explorerMode !== 'corporate' ? 'cursor-not-allowed' : 'cursor-pointer'
+                }`}
               />
               <div className="flex justify-between text-[10px] text-black/60 font-bold">
                 <span>1</span>
                 <span>10</span>
               </div>
+              {explorerMode !== 'corporate' && (
+                <p className="text-[11px] text-black/60 italic pt-1">{t.educationNote}</p>
+              )}
             </div>
 
             <div className="flex justify-end">
@@ -699,13 +749,13 @@ export default function App() {
                 <div
                   className="absolute h-full bg-[#01aeee]"
                   style={{
-                    left: `${explorerPct(selectedRow.low)}%`,
-                    width: `${explorerPct(selectedRow.high) - explorerPct(selectedRow.low)}%`,
+                    left: `${explorerPct(displayedValues.low)}%`,
+                    width: `${explorerPct(displayedValues.high) - explorerPct(displayedValues.low)}%`,
                   }}
                 />
                 <div
                   className="absolute h-full w-1.5 bg-black z-10"
-                  style={{ left: `${explorerPct(selectedRow.median)}%` }}
+                  style={{ left: `${explorerPct(displayedValues.median)}%` }}
                 />
               </div>
               <ReferenceLines domain={EXPLORER_DOMAIN} height="h-7" />
@@ -715,21 +765,21 @@ export default function App() {
               <div className="p-3 rounded-xl bg-white border border-black/10 text-center">
                 <div className="text-[10px] font-bold text-black/60 uppercase tracking-wide">{t.lowLabel}</div>
                 <SplitFlapValue
-                  value={fmt(selectedRow.low)}
+                  value={fmt(displayedValues.low)}
                   className="text-sm sm:text-base font-black text-black tabular-nums mt-0.5"
                 />
               </div>
               <div className="p-3 rounded-xl bg-black text-center">
                 <div className="text-[10px] font-bold text-[#fdf102] uppercase tracking-wide">{t.medianLabel}</div>
                 <SplitFlapValue
-                  value={fmt(selectedRow.median)}
+                  value={fmt(displayedValues.median)}
                   className="text-sm sm:text-base font-black text-white tabular-nums mt-0.5"
                 />
               </div>
               <div className="p-3 rounded-xl bg-white border border-black/10 text-center">
                 <div className="text-[10px] font-bold text-black/60 uppercase tracking-wide">{t.highLabel}</div>
                 <SplitFlapValue
-                  value={fmt(selectedRow.high)}
+                  value={fmt(displayedValues.high)}
                   className="text-sm sm:text-base font-black text-black tabular-nums mt-0.5"
                 />
               </div>
@@ -747,19 +797,26 @@ export default function App() {
             </div>
 
             <div className="pt-4 border-t-2 border-black/10">
-              <p className="text-xs text-black/80">
-                <span className="font-bold">{t.sourceLabel}:</span>{' '}
-                {selectedRow.interpolated ? (
-                  <span className="italic">{t.estimatedNote}</span>
-                ) : (
-                  selectedRow.source
-                )}
-                {selectedRow.interpolated && (
-                  <span className="ml-2 text-[9px] px-1.5 py-0.5 rounded bg-black text-[#fdf102] font-black uppercase tracking-wide">
-                    {t.estimatedTag}
-                  </span>
-                )}
-              </p>
+              {explorerMode === 'corporate' ? (
+                <p className="text-xs text-black/80">
+                  <span className="font-bold">{t.sourceLabel}:</span>{' '}
+                  {selectedRow.interpolated ? (
+                    <span className="italic">{t.estimatedNote}</span>
+                  ) : (
+                    selectedRow.source
+                  )}
+                  {selectedRow.interpolated && (
+                    <span className="ml-2 text-[9px] px-1.5 py-0.5 rounded bg-black text-[#fdf102] font-black uppercase tracking-wide">
+                      {t.estimatedTag}
+                    </span>
+                  )}
+                </p>
+              ) : (
+                <p className="text-xs text-black/80">
+                  <span className="font-bold">{t.sourceLabel}:</span>{' '}
+                  {explorerMode === 'education' ? t.educationSource : t.educationMbaSource}
+                </p>
+              )}
             </div>
               </div>
             </div>
