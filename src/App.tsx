@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Scale, ExternalLink } from 'lucide-react';
+import { Rabbit, ExternalLink } from 'lucide-react';
 
 type Lang = 'en' | 'th';
 
@@ -660,7 +660,7 @@ export default function App() {
       <header className="px-4 sm:px-6 py-4 border-b-2 border-black/10 bg-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 sticky top-0 z-30">
         <div className="flex items-start gap-3 min-w-0">
           <div className="w-9 h-9 shrink-0 rounded-xl bg-[#01aeee] flex items-center justify-center text-white font-black shadow-md">
-            <Scale className="w-5 h-5 text-white" />
+            <Rabbit className="w-5 h-5 text-white" />
           </div>
           <div className="min-w-0">
             <h1 className="font-black text-base sm:text-lg tracking-tight text-black leading-snug">
