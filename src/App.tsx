@@ -538,7 +538,7 @@ function CountUpRangeStat({
 }
 
 export default function App() {
-  const [lang, setLang] = useState<Lang>('en');
+  const [lang, setLang] = useState<Lang>('th');
   const t = TRANSLATIONS[lang];
 
   const [selectedYears, setSelectedYears] = useState(3);
