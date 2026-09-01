@@ -36,6 +36,10 @@ const TRANSLATIONS = {
     weightedContext:
       'Rapid technology cycles mean 3 years of hands-on AI experience represents mid-career competency, not entry-level tenure. Traditional experience benchmarks do not apply to this category.',
 
+    eduTitle: 'Education & MBA Context',
+    eduCard1Desc: "Master's degree salary premium over bachelor's in Thailand (cross-industry average)",
+    eduCard2Desc: 'University professional staff salary range in Thailand',
+
     marketTitle: 'Market Range Overview',
     marketSub: 'Monthly base salary (THB) across comparable roles in the Thai market',
 
@@ -68,6 +72,7 @@ const TRANSLATIONS = {
     mrEntryAi: 'Entry-Level AI Specialist, Bangkok (1–3 yrs)',
     mrDigitalTransformation: 'Digital Transformation Specialist, Bangkok',
     mrAiSpecialist: 'AI Specialist, Bangkok',
+    mrAiSpecialistExperienced: 'AI Specialist, Bangkok (Experienced)',
     mrAiLivePostings: 'AI Roles, Live Postings, Bangkok',
     mrDigitalMarketingManager: 'Digital Marketing Manager, Thailand',
 
@@ -110,6 +115,10 @@ const TRANSLATIONS = {
     weightedContext:
       'วัฏจักรเทคโนโลยีที่เปลี่ยนแปลงอย่างรวดเร็วหมายความว่าประสบการณ์ AI แบบลงมือทำ 3 ปี เทียบเท่ากับความสามารถระดับกลาง ไม่ใช่ระดับเริ่มต้น เกณฑ์ประสบการณ์แบบดั้งเดิมจึงไม่สามารถใช้ได้กับกลุ่มงานนี้',
 
+    eduTitle: 'บริบทด้านการศึกษาและ MBA',
+    eduCard1Desc: 'ส่วนเพิ่มเงินเดือนของวุฒิปริญญาโทเทียบกับปริญญาตรีในประเทศไทย (ค่าเฉลี่ยข้ามอุตสาหกรรม)',
+    eduCard2Desc: 'ช่วงเงินเดือนของบุคลากรสายวิชาชีพในมหาวิทยาลัยทั่วประเทศไทย',
+
     marketTitle: 'ภาพรวมช่วงเงินเดือนตลาด',
     marketSub: 'ฐานเงินเดือนรายเดือน (บาท) เทียบกับตำแหน่งงานใกล้เคียงในตลาดไทย',
 
@@ -142,6 +151,7 @@ const TRANSLATIONS = {
     mrEntryAi: 'ผู้เชี่ยวชาญ AI ระดับเริ่มต้น กรุงเทพฯ (1–3 ปี)',
     mrDigitalTransformation: 'ผู้เชี่ยวชาญด้านการปฏิรูปดิจิทัล กรุงเทพฯ',
     mrAiSpecialist: 'ผู้เชี่ยวชาญ AI กรุงเทพฯ',
+    mrAiSpecialistExperienced: 'ผู้เชี่ยวชาญ AI กรุงเทพฯ (มีประสบการณ์)',
     mrAiLivePostings: 'ตำแหน่งงาน AI ที่เปิดรับสมัครจริง กรุงเทพฯ',
     mrDigitalMarketingManager: 'ผู้จัดการฝ่ายการตลาดดิจิทัล ประเทศไทย',
 
@@ -193,6 +203,7 @@ const MARKET_RANGES: RangeItem[] = [
   { key: 'mrEntryAi', single: 67600 },
   { key: 'mrDigitalTransformation', low: 58500, high: 102800, avg: 84000 },
   { key: 'mrAiSpecialist', low: 67600, high: 110100, avg: 95800 },
+  { key: 'mrAiSpecialistExperienced', low: 90000, high: 180000 },
   { key: 'mrAiLivePostings', low: 85000, high: 120000 },
   { key: 'mrDigitalMarketingManager', single: 152500 },
 ];
@@ -262,6 +273,17 @@ const SOURCES = [
   { name: 'SalaryExpert 2026', url: 'https://www.salaryexpert.com' },
   { name: 'JobsDB Thailand 2026', url: 'https://th.jobsdb.com' },
   { name: 'Smartcruit Thailand Salary Survey 2026', url: 'https://smartcruit.co' },
+  {
+    name: 'Workwise Consulting Bangkok Salary Guide 2026',
+    url: 'https://www.workwiseconsulting.co.th/insights/bangkok-salary-guide-2026-benchmarks',
+  },
+  { name: 'WorldSalaries Thailand 2026', url: 'https://worldsalaries.com/average-salary-in-thailand/' },
+  {
+    name: 'LinkedIn via HeroHunt 2026',
+    url: 'https://www.herohunt.ai/blog/fastest-growing-ai-roles-in-2026-data-and-rankings/',
+  },
+  { name: 'Hakia AI Talent Market 2026', url: 'https://hakia.com/tech-insights/ai-talent-market/' },
+  { name: 'Coursera AI Jobs 2026', url: 'https://www.coursera.org/articles/artificial-intelligence-jobs' },
 ];
 
 const CURRENT_OFFER = 40000;
@@ -392,6 +414,46 @@ function SplitFlapValue({ value, className }: { value: string; className?: strin
   );
 }
 
+function useScrollCountProgress(duration = 1200) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const [progress, setProgress] = useState(0);
+  const hasAnimated = useRef(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setProgress(1);
+      hasAnimated.current = true;
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting && !hasAnimated.current) {
+            hasAnimated.current = true;
+            const start = performance.now();
+            const step = (now: number) => {
+              const elapsed = Math.min((now - start) / duration, 1);
+              setProgress(1 - Math.pow(1 - elapsed, 3));
+              if (elapsed < 1) requestAnimationFrame(step);
+            };
+            requestAnimationFrame(step);
+            observer.disconnect();
+          }
+        }
+      },
+      { threshold: 0.4 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [duration]);
+
+  return { ref, progress };
+}
+
 function CountUpStat({
   prefix = '',
   value,
@@ -405,48 +467,33 @@ function CountUpStat({
   suffix?: string;
   className?: string;
 }) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const [display, setDisplay] = useState(0);
-  const hasAnimated = useRef(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      setDisplay(value);
-      hasAnimated.current = true;
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (entry.isIntersecting && !hasAnimated.current) {
-            hasAnimated.current = true;
-            const duration = 1200;
-            const start = performance.now();
-            const step = (now: number) => {
-              const progress = Math.min((now - start) / duration, 1);
-              const eased = 1 - Math.pow(1 - progress, 3);
-              setDisplay(value * eased);
-              if (progress < 1) requestAnimationFrame(step);
-            };
-            requestAnimationFrame(step);
-            observer.disconnect();
-          }
-        }
-      },
-      { threshold: 0.4 }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, [value]);
+  const { ref, progress } = useScrollCountProgress();
 
   return (
     <span ref={ref} className={className}>
       {prefix}
-      {display.toFixed(decimals)}
+      {(value * progress).toFixed(decimals)}
+      {suffix}
+    </span>
+  );
+}
+
+function CountUpRangeStat({
+  low,
+  high,
+  suffix = '',
+  className,
+}: {
+  low: number;
+  high: number;
+  suffix?: string;
+  className?: string;
+}) {
+  const { ref, progress } = useScrollCountProgress();
+
+  return (
+    <span ref={ref} className={className}>
+      ฿{Math.round(low * progress).toLocaleString('en-US')}–฿{Math.round(high * progress).toLocaleString('en-US')}
       {suffix}
     </span>
   );
@@ -810,6 +857,53 @@ export default function App() {
           <p className="text-xs text-black/70 italic">{t.weightedContext}</p>
         </section>
 
+        {/* EDUCATION & MBA CONTEXT */}
+        <section className="space-y-4">
+          <div>
+            <h2 className="font-black text-lg text-black">{t.eduTitle}</h2>
+          </div>
+
+          <div className="stat-card p-5 sm:p-6 rounded-2xl bg-white border-2 border-black/10 shadow-sm grid grid-cols-1 sm:grid-cols-2 gap-6 sm:divide-x sm:divide-black/10">
+            <div>
+              <CountUpStat
+                prefix="~"
+                value={30}
+                decimals={0}
+                suffix="%"
+                className="text-3xl font-black text-[#01aeee] tabular-nums"
+              />
+              <p className="text-sm text-black/80 font-medium mt-2 leading-snug">{t.eduCard1Desc}</p>
+              <a
+                href="https://worldsalaries.com/average-salary-in-thailand/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-black/60 hover:text-[#01aeee] transition-colors"
+              >
+                <span>{t.sourceLabel}: WorldSalaries 2026</span>
+                <ExternalLink className="w-3 h-3 shrink-0" />
+              </a>
+            </div>
+            <div className="sm:pl-6">
+              <CountUpRangeStat
+                low={42000}
+                high={72000}
+                suffix="/mo"
+                className="text-3xl font-black text-[#01aeee] tabular-nums"
+              />
+              <p className="text-sm text-black/80 font-medium mt-2 leading-snug">{t.eduCard2Desc}</p>
+              <a
+                href="https://www.erieri.com/salary/job/college-university-teacher/thailand"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-black/60 hover:text-[#01aeee] transition-colors"
+              >
+                <span>{t.sourceLabel}: ERI 2026</span>
+                <ExternalLink className="w-3 h-3 shrink-0" />
+              </a>
+            </div>
+          </div>
+        </section>
+
         {/* MARKET RANGE OVERVIEW */}
         <section className="space-y-4">
           <div>
@@ -822,7 +916,7 @@ export default function App() {
             </div>
             <div className="divide-y divide-black/5">
               {MARKET_RANGES.map((item) => (
-                <RangeRow key={item.key} label={t[item.key]} item={item} domain={160000} />
+                <RangeRow key={item.key} label={t[item.key]} item={item} domain={200000} />
               ))}
             </div>
             <p className="mt-4 text-[10px] text-black/50">{t.unitNote}</p>
