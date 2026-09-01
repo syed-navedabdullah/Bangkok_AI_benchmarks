@@ -828,59 +828,6 @@ export default function App() {
               </div>
             </div>
           </div>
-
-          <div className="p-5 sm:p-6 rounded-2xl bg-white border-2 border-black/10 shadow-sm overflow-x-auto">
-            <table className="w-full text-left text-xs min-w-[560px]">
-              <thead>
-                <tr className="border-b-2 border-black/20 text-black">
-                  <th className="pb-3 font-bold">{t.tableColYears}</th>
-                  <th className="pb-3 font-bold">{t.tableColLow}</th>
-                  <th className="pb-3 font-bold text-[#01aeee]">{t.tableColMedian}</th>
-                  <th className="pb-3 font-bold">{t.tableColHigh}</th>
-                  <th className="pb-3 font-bold">{t.tableColSource}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-black/10">
-                {activeDataset.map((row) => {
-                  const isCurrent = row.years === selectedYears;
-                  return (
-                    <tr
-                      key={row.years}
-                      onClick={() => setSelectedYears(row.years)}
-                      className={`cursor-pointer transition-colors ${
-                        isCurrent ? 'bg-[#01aeee] text-white font-black' : 'hover:bg-neutral-50 text-black'
-                      }`}
-                    >
-                      <td className="py-3 px-2 rounded-l-lg font-bold">{row.years}</td>
-                      <td className="py-3 px-2 tabular-nums">{fmt(row.low)}</td>
-                      <td className={`py-3 px-2 font-bold tabular-nums ${isCurrent ? 'text-white' : 'text-[#01aeee]'}`}>
-                        {fmt(row.median)}
-                      </td>
-                      <td className="py-3 px-2 tabular-nums">{fmt(row.high)}</td>
-                      <td className="py-3 px-2 rounded-r-lg">
-                        <span className="flex items-center gap-1.5">
-                          {row.interpolated ? (
-                            <>
-                              <span className="italic">{lang === 'th' ? 'ค่าประมาณ' : 'Interpolated'}</span>
-                              <span
-                                className={`text-[9px] px-1.5 py-0.5 rounded font-black uppercase tracking-wide ${
-                                  isCurrent ? 'bg-white text-[#01aeee]' : 'bg-black text-[#fdf102]'
-                                }`}
-                              >
-                                {t.estimatedTag}
-                              </span>
-                            </>
-                          ) : (
-                            row.source
-                          )}
-                        </span>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
         </section>
 
         {/* WHY AI EXPERIENCE IS WEIGHTED DIFFERENTLY */}
@@ -965,6 +912,62 @@ export default function App() {
                 <ExternalLink className="w-3 h-3 shrink-0" />
               </a>
             </div>
+          </div>
+        </section>
+
+        {/* SALARY RANGE EXPLORER REFERENCE TABLE */}
+        <section className="space-y-4">
+          <div className="p-5 sm:p-6 rounded-2xl bg-white border-2 border-black/10 shadow-sm overflow-x-auto">
+            <table className="w-full text-left text-xs min-w-[560px]">
+              <thead>
+                <tr className="border-b-2 border-black/20 text-black">
+                  <th className="pb-3 font-bold">{t.tableColYears}</th>
+                  <th className="pb-3 font-bold">{t.tableColLow}</th>
+                  <th className="pb-3 font-bold text-[#01aeee]">{t.tableColMedian}</th>
+                  <th className="pb-3 font-bold">{t.tableColHigh}</th>
+                  <th className="pb-3 font-bold">{t.tableColSource}</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-black/10">
+                {activeDataset.map((row) => {
+                  const isCurrent = row.years === selectedYears;
+                  return (
+                    <tr
+                      key={row.years}
+                      onClick={() => setSelectedYears(row.years)}
+                      className={`cursor-pointer transition-colors ${
+                        isCurrent ? 'bg-[#01aeee] text-white font-black' : 'hover:bg-neutral-50 text-black'
+                      }`}
+                    >
+                      <td className="py-3 px-2 rounded-l-lg font-bold">{row.years}</td>
+                      <td className="py-3 px-2 tabular-nums">{fmt(row.low)}</td>
+                      <td className={`py-3 px-2 font-bold tabular-nums ${isCurrent ? 'text-white' : 'text-[#01aeee]'}`}>
+                        {fmt(row.median)}
+                      </td>
+                      <td className="py-3 px-2 tabular-nums">{fmt(row.high)}</td>
+                      <td className="py-3 px-2 rounded-r-lg">
+                        <span className="flex items-center gap-1.5">
+                          {row.interpolated ? (
+                            <>
+                              <span className="italic">{lang === 'th' ? 'ค่าประมาณ' : 'Interpolated'}</span>
+                              <span
+                                className={`text-[9px] px-1.5 py-0.5 rounded font-black uppercase tracking-wide ${
+                                  isCurrent ? 'bg-white text-[#01aeee]' : 'bg-black text-[#fdf102]'
+                                }`}
+                              >
+                                {t.estimatedTag}
+                              </span>
+                            </>
+                          ) : (
+                            row.source
+                          )}
+                        </span>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         </section>
 
