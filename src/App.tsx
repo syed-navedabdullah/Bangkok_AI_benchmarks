@@ -21,11 +21,8 @@ const TRANSLATIONS = {
     candidatePositionLabel: 'Candidate Position',
     diffFromAskLabel: 'Market Median Premium over Ask (฿52,000)',
     filterCorporate: 'Corporate',
-    filterEducation: 'Education',
-    filterEducationMBA: 'Education + MBA',
-    educationNote: 'Education sector data reflects overall range, not experience-adjusted.',
-    educationSource: 'ERI 2026, Thai University Compensation Benchmarks',
-    educationMbaSource: "ERI 2026 base + 30% master's premium (WorldSalaries 2026)",
+    filterAcademic: 'Academic',
+    filterAcademicMBA: 'Academic + MBA',
 
     tableColYears: 'Years',
     tableColLow: 'Low',
@@ -104,11 +101,8 @@ const TRANSLATIONS = {
     candidatePositionLabel: 'ตำแหน่งของผู้สมัคร',
     diffFromAskLabel: 'ค่ามัธยฐานตลาดสูงกว่าราคาที่เสนอ (฿52,000)',
     filterCorporate: 'ภาคเอกชน',
-    filterEducation: 'ภาคการศึกษา',
-    filterEducationMBA: 'ภาคการศึกษา + MBA',
-    educationNote: 'ข้อมูลภาคการศึกษาสะท้อนช่วงเงินเดือนโดยรวม ไม่ได้ปรับตามประสบการณ์',
-    educationSource: 'ERI 2026, เกณฑ์เปรียบเทียบค่าตอบแทนมหาวิทยาลัยไทย',
-    educationMbaSource: 'ฐาน ERI 2026 บวกส่วนเพิ่มปริญญาโท 30% (WorldSalaries 2026)',
+    filterAcademic: 'ภาควิชาการ',
+    filterAcademicMBA: 'ภาควิชาการ + MBA',
 
     tableColYears: 'ปี',
     tableColLow: 'ต่ำสุด',
@@ -198,10 +192,33 @@ const EXPERIENCE_DATA: ExperienceRow[] = [
   { years: 10, low: 85000, median: 105000, high: 130000, source: 'Michael Page Thailand 2026', interpolated: false },
 ];
 
-type ExplorerMode = 'corporate' | 'education' | 'educationMBA';
+type ExplorerMode = 'corporate' | 'academic' | 'academicMBA';
 
-const EDUCATION_RANGE = { low: 42000, median: 50000, high: 72000 };
-const EDUCATION_MBA_RANGE = { low: 54600, median: 65000, high: 93600 };
+const ACADEMIC_DATA: ExperienceRow[] = [
+  { years: 1, low: 35000, median: 42000, high: 50000, source: 'SalaryExpert 2026 (entry-level anchor)', interpolated: false },
+  { years: 2, low: 38000, median: 46000, high: 55000, source: 'Interpolated', interpolated: true },
+  { years: 3, low: 42000, median: 50000, high: 60000, source: 'SalaryExpert 2026 (1-3yr average)', interpolated: false },
+  { years: 4, low: 44000, median: 53000, high: 63000, source: 'Interpolated', interpolated: true },
+  { years: 5, low: 46000, median: 56000, high: 66000, source: 'Interpolated', interpolated: true },
+  { years: 6, low: 48000, median: 59000, high: 68000, source: 'Interpolated', interpolated: true },
+  { years: 7, low: 50000, median: 62000, high: 70000, source: 'SalaryExpert 2026 (mid-career)', interpolated: false },
+  { years: 8, low: 55000, median: 65000, high: 72000, source: 'SalaryExpert 2026 (8yr+ anchor)', interpolated: false },
+  { years: 9, low: 58000, median: 70000, high: 78000, source: 'Interpolated', interpolated: true },
+  { years: 10, low: 60000, median: 77000, high: 85000, source: 'SalaryExpert 2026 (senior projection)', interpolated: false },
+];
+
+const ACADEMIC_MBA_DATA: ExperienceRow[] = [
+  { years: 1, low: 46000, median: 55000, high: 65000, source: 'Academic base + 30% MBA premium', interpolated: false },
+  { years: 2, low: 49000, median: 60000, high: 72000, source: 'Interpolated', interpolated: true },
+  { years: 3, low: 55000, median: 65000, high: 78000, source: 'Academic base + 30% MBA premium', interpolated: false },
+  { years: 4, low: 57000, median: 69000, high: 82000, source: 'Interpolated', interpolated: true },
+  { years: 5, low: 60000, median: 73000, high: 86000, source: 'Interpolated', interpolated: true },
+  { years: 6, low: 62000, median: 77000, high: 88000, source: 'Interpolated', interpolated: true },
+  { years: 7, low: 65000, median: 81000, high: 91000, source: 'Academic base + 30% MBA premium', interpolated: false },
+  { years: 8, low: 72000, median: 85000, high: 94000, source: 'Academic base + 30% MBA premium', interpolated: false },
+  { years: 9, low: 75000, median: 91000, high: 101000, source: 'Interpolated', interpolated: true },
+  { years: 10, low: 78000, median: 100000, high: 111000, source: 'Academic base + 30% MBA premium', interpolated: false },
+];
 
 type RangeItem = {
   key: keyof Translation;
@@ -301,6 +318,10 @@ const SOURCES = [
   },
   { name: 'Hakia AI Talent Market 2026', url: 'https://hakia.com/tech-insights/ai-talent-market/' },
   { name: 'Coursera AI Jobs 2026', url: 'https://www.coursera.org/articles/artificial-intelligence-jobs' },
+  {
+    name: 'SalaryExpert University Lecturer, Thailand 2026',
+    url: 'https://www.salaryexpert.com/salary/job/lecturer-university/thailand',
+  },
 ];
 
 const CURRENT_OFFER = 40000;
@@ -521,18 +542,17 @@ export default function App() {
   const t = TRANSLATIONS[lang];
 
   const [selectedYears, setSelectedYears] = useState(3);
-  const selectedRow = useMemo(
-    () => EXPERIENCE_DATA.find((r) => r.years === selectedYears) ?? EXPERIENCE_DATA[2],
-    [selectedYears]
-  );
-
   const [explorerMode, setExplorerMode] = useState<ExplorerMode>('corporate');
-  const displayedValues = useMemo(() => {
-    if (explorerMode === 'education') return EDUCATION_RANGE;
-    if (explorerMode === 'educationMBA') return EDUCATION_MBA_RANGE;
-    return { low: selectedRow.low, median: selectedRow.median, high: selectedRow.high };
-  }, [explorerMode, selectedRow]);
-  const askDiff = displayedValues.median - CANDIDATE_POSITION;
+  const activeDataset = useMemo(() => {
+    if (explorerMode === 'academic') return ACADEMIC_DATA;
+    if (explorerMode === 'academicMBA') return ACADEMIC_MBA_DATA;
+    return EXPERIENCE_DATA;
+  }, [explorerMode]);
+  const selectedRow = useMemo(
+    () => activeDataset.find((r) => r.years === selectedYears) ?? activeDataset[2],
+    [activeDataset, selectedYears]
+  );
+  const askDiff = selectedRow.median - CANDIDATE_POSITION;
 
   const EXPLORER_DOMAIN = 140000;
   const explorerPct = (v: number) => Math.max(0, Math.min(100, (v / EXPLORER_DOMAIN) * 100));
@@ -695,7 +715,7 @@ export default function App() {
                 }}
               >
             <div className="flex flex-wrap gap-2">
-              {(['corporate', 'education', 'educationMBA'] as ExplorerMode[]).map((mode) => (
+              {(['corporate', 'academic', 'academicMBA'] as ExplorerMode[]).map((mode) => (
                 <button
                   key={mode}
                   onClick={() => setExplorerMode(mode)}
@@ -707,14 +727,14 @@ export default function App() {
                 >
                   {mode === 'corporate'
                     ? t.filterCorporate
-                    : mode === 'education'
-                    ? t.filterEducation
-                    : t.filterEducationMBA}
+                    : mode === 'academic'
+                    ? t.filterAcademic
+                    : t.filterAcademicMBA}
                 </button>
               ))}
             </div>
 
-            <div className={`space-y-2 transition-opacity duration-300 ${explorerMode !== 'corporate' ? 'opacity-40' : ''}`}>
+            <div className="space-y-2">
               <div className="flex items-center justify-between text-xs font-bold text-black">
                 <span>{t.yearsLabel}</span>
                 <span className="text-[#01aeee] text-base font-black">{selectedYears}</span>
@@ -725,19 +745,13 @@ export default function App() {
                 max={10}
                 step={1}
                 value={selectedYears}
-                disabled={explorerMode !== 'corporate'}
                 onChange={(e) => setSelectedYears(Number(e.target.value))}
-                className={`w-full accent-[#01aeee] ${
-                  explorerMode !== 'corporate' ? 'cursor-not-allowed' : 'cursor-pointer'
-                }`}
+                className="w-full accent-[#01aeee] cursor-pointer"
               />
               <div className="flex justify-between text-[10px] text-black/60 font-bold">
                 <span>1</span>
                 <span>10</span>
               </div>
-              {explorerMode !== 'corporate' && (
-                <p className="text-[11px] text-black/60 italic pt-1">{t.educationNote}</p>
-              )}
             </div>
 
             <div className="flex justify-end">
@@ -749,13 +763,13 @@ export default function App() {
                 <div
                   className="absolute h-full bg-[#01aeee]"
                   style={{
-                    left: `${explorerPct(displayedValues.low)}%`,
-                    width: `${explorerPct(displayedValues.high) - explorerPct(displayedValues.low)}%`,
+                    left: `${explorerPct(selectedRow.low)}%`,
+                    width: `${explorerPct(selectedRow.high) - explorerPct(selectedRow.low)}%`,
                   }}
                 />
                 <div
                   className="absolute h-full w-1.5 bg-black z-10"
-                  style={{ left: `${explorerPct(displayedValues.median)}%` }}
+                  style={{ left: `${explorerPct(selectedRow.median)}%` }}
                 />
               </div>
               <ReferenceLines domain={EXPLORER_DOMAIN} height="h-7" />
@@ -765,21 +779,21 @@ export default function App() {
               <div className="p-3 rounded-xl bg-white border border-black/10 text-center">
                 <div className="text-[10px] font-bold text-black/60 uppercase tracking-wide">{t.lowLabel}</div>
                 <SplitFlapValue
-                  value={fmt(displayedValues.low)}
+                  value={fmt(selectedRow.low)}
                   className="text-sm sm:text-base font-black text-black tabular-nums mt-0.5"
                 />
               </div>
               <div className="p-3 rounded-xl bg-black text-center">
                 <div className="text-[10px] font-bold text-[#fdf102] uppercase tracking-wide">{t.medianLabel}</div>
                 <SplitFlapValue
-                  value={fmt(displayedValues.median)}
+                  value={fmt(selectedRow.median)}
                   className="text-sm sm:text-base font-black text-white tabular-nums mt-0.5"
                 />
               </div>
               <div className="p-3 rounded-xl bg-white border border-black/10 text-center">
                 <div className="text-[10px] font-bold text-black/60 uppercase tracking-wide">{t.highLabel}</div>
                 <SplitFlapValue
-                  value={fmt(displayedValues.high)}
+                  value={fmt(selectedRow.high)}
                   className="text-sm sm:text-base font-black text-black tabular-nums mt-0.5"
                 />
               </div>
@@ -797,26 +811,19 @@ export default function App() {
             </div>
 
             <div className="pt-4 border-t-2 border-black/10">
-              {explorerMode === 'corporate' ? (
-                <p className="text-xs text-black/80">
-                  <span className="font-bold">{t.sourceLabel}:</span>{' '}
-                  {selectedRow.interpolated ? (
-                    <span className="italic">{t.estimatedNote}</span>
-                  ) : (
-                    selectedRow.source
-                  )}
-                  {selectedRow.interpolated && (
-                    <span className="ml-2 text-[9px] px-1.5 py-0.5 rounded bg-black text-[#fdf102] font-black uppercase tracking-wide">
-                      {t.estimatedTag}
-                    </span>
-                  )}
-                </p>
-              ) : (
-                <p className="text-xs text-black/80">
-                  <span className="font-bold">{t.sourceLabel}:</span>{' '}
-                  {explorerMode === 'education' ? t.educationSource : t.educationMbaSource}
-                </p>
-              )}
+              <p className="text-xs text-black/80">
+                <span className="font-bold">{t.sourceLabel}:</span>{' '}
+                {selectedRow.interpolated ? (
+                  <span className="italic">{t.estimatedNote}</span>
+                ) : (
+                  selectedRow.source
+                )}
+                {selectedRow.interpolated && (
+                  <span className="ml-2 text-[9px] px-1.5 py-0.5 rounded bg-black text-[#fdf102] font-black uppercase tracking-wide">
+                    {t.estimatedTag}
+                  </span>
+                )}
+              </p>
             </div>
               </div>
             </div>
@@ -834,7 +841,7 @@ export default function App() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-black/10">
-                {EXPERIENCE_DATA.map((row) => {
+                {activeDataset.map((row) => {
                   const isCurrent = row.years === selectedYears;
                   return (
                     <tr
