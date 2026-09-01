@@ -27,6 +27,15 @@ const TRANSLATIONS = {
     tableColHigh: 'High',
     tableColSource: 'Source',
 
+    weightedTitle: 'Why AI Experience Is Weighted Differently',
+    yearsSuffix: ' years',
+    weightedCard1Desc: 'Median prior experience for fastest-growing AI roles globally',
+    weightedCard2Desc: 'of AI job postings require advanced degrees, down from 67% in 2020 — execution outweighs tenure',
+    weightedCard3Desc: 'Typical experience required for entry-level AI roles',
+    weightedCard4Desc: 'Year-over-year growth in AI job postings — demand outstrips supply, compressing experience requirements',
+    weightedContext:
+      'Rapid technology cycles mean 3 years of hands-on AI experience represents mid-career competency, not entry-level tenure. Traditional experience benchmarks do not apply to this category.',
+
     marketTitle: 'Market Range Overview',
     marketSub: 'Monthly base salary (THB) across comparable roles in the Thai market',
 
@@ -89,6 +98,17 @@ const TRANSLATIONS = {
     tableColMedian: 'มัธยฐาน',
     tableColHigh: 'สูงสุด',
     tableColSource: 'แหล่งข้อมูล',
+
+    weightedTitle: 'ทำไมประสบการณ์ด้าน AI จึงถูกให้น้ำหนักต่างออกไป',
+    yearsSuffix: ' ปี',
+    weightedCard1Desc: 'ค่ามัธยฐานประสบการณ์ก่อนหน้าสำหรับตำแหน่งงาน AI ที่เติบโตเร็วที่สุดทั่วโลก',
+    weightedCard2Desc:
+      'ของประกาศรับสมัครงาน AI ที่ต้องใช้วุฒิการศึกษาขั้นสูง ลดลงจาก 67% ในปี 2020 — ความสามารถในการลงมือทำสำคัญกว่าอายุงาน',
+    weightedCard3Desc: 'ประสบการณ์ทั่วไปที่ต้องใช้สำหรับตำแหน่งงาน AI ระดับเริ่มต้น',
+    weightedCard4Desc:
+      'อัตราการเติบโตของประกาศรับสมัครงาน AI เทียบปีต่อปี — ความต้องการสูงกว่าอุปทาน ทำให้ข้อกำหนดด้านประสบการณ์ลดลง',
+    weightedContext:
+      'วัฏจักรเทคโนโลยีที่เปลี่ยนแปลงอย่างรวดเร็วหมายความว่าประสบการณ์ AI แบบลงมือทำ 3 ปี เทียบเท่ากับความสามารถระดับกลาง ไม่ใช่ระดับเริ่มต้น เกณฑ์ประสบการณ์แบบดั้งเดิมจึงไม่สามารถใช้ได้กับกลุ่มงานนี้',
 
     marketTitle: 'ภาพรวมช่วงเงินเดือนตลาด',
     marketSub: 'ฐานเงินเดือนรายเดือน (บาท) เทียบกับตำแหน่งงานใกล้เคียงในตลาดไทย',
@@ -182,6 +202,57 @@ const INSTITUTION_RANGES: RangeItem[] = [
   { key: 'instAutonomousPublic', low: 28000, high: 45000, median: 36000 },
   { key: 'instInternationalPrograms', low: 40000, high: 65000, median: 50000, highlight: true },
   { key: 'instPrivateInternational', low: 35000, high: 55000, median: 45000 },
+];
+
+type ExperienceWeightCard = {
+  key: string;
+  prefix?: string;
+  value: number;
+  decimals?: number;
+  suffix: '%' | 'years';
+  descKey: keyof Translation;
+  sourceName: string;
+  sourceUrl: string;
+};
+
+const EXPERIENCE_WEIGHT_CARDS: ExperienceWeightCard[] = [
+  {
+    key: 'medianPriorExperience',
+    value: 3.5,
+    decimals: 1,
+    suffix: 'years',
+    descKey: 'weightedCard1Desc',
+    sourceName: 'LinkedIn 2026 via herohunt.ai',
+    sourceUrl: 'https://www.herohunt.ai/blog/fastest-growing-ai-roles-in-2026-data-and-rankings/',
+  },
+  {
+    key: 'advancedDegreeShare',
+    value: 23,
+    decimals: 0,
+    suffix: '%',
+    descKey: 'weightedCard2Desc',
+    sourceName: 'Hakia/Glassdoor/LinkedIn 2026',
+    sourceUrl: 'https://hakia.com/tech-insights/ai-talent-market/',
+  },
+  {
+    key: 'entryLevelExperience',
+    prefix: '<',
+    value: 3,
+    decimals: 0,
+    suffix: 'years',
+    descKey: 'weightedCard3Desc',
+    sourceName: 'Coursera 2026',
+    sourceUrl: 'https://www.coursera.org/articles/artificial-intelligence-jobs',
+  },
+  {
+    key: 'postingGrowth',
+    value: 74,
+    decimals: 0,
+    suffix: '%',
+    descKey: 'weightedCard4Desc',
+    sourceName: 'Hakia 2026',
+    sourceUrl: 'https://hakia.com/tech-insights/ai-talent-market/',
+  },
 ];
 
 const SOURCES = [
@@ -321,6 +392,66 @@ function SplitFlapValue({ value, className }: { value: string; className?: strin
   );
 }
 
+function CountUpStat({
+  prefix = '',
+  value,
+  decimals = 0,
+  suffix = '',
+  className,
+}: {
+  prefix?: string;
+  value: number;
+  decimals?: number;
+  suffix?: string;
+  className?: string;
+}) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const [display, setDisplay] = useState(0);
+  const hasAnimated = useRef(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setDisplay(value);
+      hasAnimated.current = true;
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting && !hasAnimated.current) {
+            hasAnimated.current = true;
+            const duration = 1200;
+            const start = performance.now();
+            const step = (now: number) => {
+              const progress = Math.min((now - start) / duration, 1);
+              const eased = 1 - Math.pow(1 - progress, 3);
+              setDisplay(value * eased);
+              if (progress < 1) requestAnimationFrame(step);
+            };
+            requestAnimationFrame(step);
+            observer.disconnect();
+          }
+        }
+      },
+      { threshold: 0.4 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [value]);
+
+  return (
+    <span ref={ref} className={className}>
+      {prefix}
+      {display.toFixed(decimals)}
+      {suffix}
+    </span>
+  );
+}
+
 export default function App() {
   const [lang, setLang] = useState<Lang>('en');
   const t = TRANSLATIONS[lang];
@@ -413,6 +544,25 @@ export default function App() {
         @media (prefers-reduced-motion: reduce) {
           .flap-char { animation: none !important; }
           .glow-border::before { animation: none !important; }
+        }
+
+        .stat-card {
+          position: relative;
+        }
+
+        .stat-card::after {
+          content: '';
+          position: absolute;
+          left: 0;
+          bottom: 0;
+          height: 2px;
+          width: 0;
+          background: #01aeee;
+          transition: width 300ms ease;
+        }
+
+        .stat-card:hover::after {
+          width: 100%;
         }
       `}</style>
 
@@ -620,6 +770,44 @@ export default function App() {
               </tbody>
             </table>
           </div>
+        </section>
+
+        {/* WHY AI EXPERIENCE IS WEIGHTED DIFFERENTLY */}
+        <section className="space-y-4">
+          <div>
+            <h2 className="font-black text-lg text-black">{t.weightedTitle}</h2>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {EXPERIENCE_WEIGHT_CARDS.map((card) => (
+              <div
+                key={card.key}
+                className="stat-card p-5 rounded-2xl bg-white border-2 border-black/10 shadow-sm"
+              >
+                <CountUpStat
+                  prefix={card.prefix}
+                  value={card.value}
+                  decimals={card.decimals}
+                  suffix={card.suffix === 'years' ? t.yearsSuffix : '%'}
+                  className="text-3xl font-black text-[#01aeee] tabular-nums"
+                />
+                <p className="text-sm text-black/80 font-medium mt-2 leading-snug">{t[card.descKey]}</p>
+                <a
+                  href={card.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 inline-flex items-center gap-1.5 text-xs font-bold text-black/60 hover:text-[#01aeee] transition-colors"
+                >
+                  <span>
+                    {t.sourceLabel}: {card.sourceName}
+                  </span>
+                  <ExternalLink className="w-3 h-3 shrink-0" />
+                </a>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-xs text-black/70 italic">{t.weightedContext}</p>
         </section>
 
         {/* MARKET RANGE OVERVIEW */}
