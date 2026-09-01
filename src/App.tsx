@@ -19,7 +19,7 @@ const TRANSLATIONS = {
     estimatedNote: 'Interpolated between adjacent data points, not a direct survey figure.',
     currentOfferLabel: 'Current Offer',
     candidatePositionLabel: 'Candidate Position',
-    diffFromAskLabel: 'Market Median Premium over Ask (฿52,000)',
+    diffFromAskLabel: 'Market Median Premium over Ask (฿55,000)',
     filterCorporate: 'Corporate',
     filterAcademic: 'Academic',
     filterAcademicMBA: 'Academic + MBA',
@@ -65,7 +65,7 @@ const TRANSLATIONS = {
     sourcesSub: 'All figures compiled from the following third-party salary surveys and databases',
 
     legendCurrentOffer: 'Current Offer (฿40,000)',
-    legendCandidatePosition: 'Candidate Position (฿52,000)',
+    legendCandidatePosition: 'Candidate Position (฿55,000)',
     unitNote: 'All figures in THB per month',
     avgTag: 'avg',
 
@@ -99,7 +99,7 @@ const TRANSLATIONS = {
     estimatedNote: 'ประมาณค่าจากการประมาณระหว่างจุดข้อมูลที่มีอยู่ ไม่ใช่ตัวเลขจากแบบสำรวจโดยตรง',
     currentOfferLabel: 'ข้อเสนอปัจจุบัน',
     candidatePositionLabel: 'ตำแหน่งของผู้สมัคร',
-    diffFromAskLabel: 'ค่ามัธยฐานตลาดสูงกว่าราคาที่เสนอ (฿52,000)',
+    diffFromAskLabel: 'ค่ามัธยฐานตลาดสูงกว่าราคาที่เสนอ (฿55,000)',
     filterCorporate: 'ภาคเอกชน',
     filterAcademic: 'ภาควิชาการ',
     filterAcademicMBA: 'ภาควิชาการ + MBA',
@@ -147,7 +147,7 @@ const TRANSLATIONS = {
     sourcesSub: 'ตัวเลขทั้งหมดรวบรวมจากแบบสำรวจและฐานข้อมูลเงินเดือนของบุคคลที่สามต่อไปนี้',
 
     legendCurrentOffer: 'ข้อเสนอปัจจุบัน (฿40,000)',
-    legendCandidatePosition: 'ตำแหน่งของผู้สมัคร (฿52,000)',
+    legendCandidatePosition: 'ตำแหน่งของผู้สมัคร (฿55,000)',
     unitNote: 'ตัวเลขทั้งหมดเป็นหน่วยบาทต่อเดือน',
     avgTag: 'เฉลี่ย',
 
@@ -325,7 +325,7 @@ const SOURCES = [
 ];
 
 const CURRENT_OFFER = 40000;
-const CANDIDATE_POSITION = 52000;
+const CANDIDATE_POSITION = 55000;
 
 const fmt = (v: number) => `฿${v.toLocaleString('en-US')}`;
 
